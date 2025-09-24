@@ -524,68 +524,53 @@
       cursor: not-allowed;
       opacity: 0.5;
   }
-    
-    /* Offline Page Styles */
-  .full-screen-message {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(180deg, #061426 0%, #071022 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000; /* Ensure it's on top of everything */
-      color: var(--white);
-      padding: 20px;
-      text-align: center;
+  /* UPDATED: Glossy Contact Card Styles */
+  .contact-card {
+    background: rgba(255, 255, 255, 0.05); /* Lighter, semi-transparent background */
+    border: 1px solid rgba(255, 255, 255, 0.18); /* More visible border */
+    border-radius: 20px; /* More rounded corners */
+    padding: 24px; /* Increased padding */
+    margin-top: 24px;
+    backdrop-filter: blur(12px); /* Stronger blur effect */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); /* Subtle, dark shadow */
   }
-  .message-card {
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border: 1px solid var(--glass-border);
-      border-radius: 12px;
-      padding: 30px;
-      max-width: 400px;
-      width: 100%;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-      backdrop-filter: blur(5px);
-      animation: fadeIn 0.5s ease-out;
+  .contact-header {
+    margin-bottom: 12px;
   }
-  .message-card .icon {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: rgba(225, 29, 72, 0.1);
-      color: var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 20px;
+  .contact-header h4 {
+    margin: 0;
+    color: var(--white);
+    font-size: 1.1rem;
   }
-  .message-card h2 {
-      font-size: 24px;
-      margin-bottom: 10px;
+  .contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px;
   }
-  .message-card p {
-      font-size: 16px;
-      color: var(--muted);
+  .contact-item {
+    background: rgba(255, 255, 255, 0.03); /* Very light, transparent background for items */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px; /* Match the rounded style */
+    padding: 16px; /* Increased padding */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    text-decoration: none;
+    color: var(--white);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
-  .message-card .btn {
-      margin-top: 20px;
-      width: 100%;
+  .contact-item svg {
+    width: 28px;
+    height: 28px;
+    color: var(--accent);
+    margin-bottom: 8px;
   }
-  #noData {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      padding: 20px;
-      text-align: center;
-  }
-  #refreshDataBtn {
-      display: none;
+  .contact-item:hover {
+    background: rgba(255, 255, 255, 0.08); /* Brighter on hover */
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 4px 15px rgba(225, 29, 72, 0.3); /* Add a subtle glow on hover */
   }
 </style>
 </head>
@@ -613,20 +598,6 @@
   </div>
   <div id="loadingFrom">from Appozi</div>
 </div>
-
-<div id="offlinePage" class="full-screen-message" style="display: none;">
-  <div class="message-card">
-    <div class="icon">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 19V6M5 12l7 7 7-7"/>
-      </svg>
-    </div>
-    <h2 id="offlineTitle">আপনি অফলাইনে আছেন</h2>
-    <p id="offlineMessage">রক্তের ডেটা লোড করা সম্ভব হচ্ছে না। অনুগ্রহ করে আপনার ইন্টারনেট সংযোগ পরীক্ষা করুন।</p>
-    <button class="btn primary" id="offlineRefreshBtn" onclick="window.location.reload()">পুনরায় চেষ্টা করুন</button>
-  </div>
-</div>
-
 <div id="app" aria-hidden="true">
   <header class="app-header" role="banner">
     <div class="brand" aria-hidden="false" onclick="scrollToTop()">
@@ -674,10 +645,14 @@
         <div class="muted small">সকল ডোনার</div>
       </div>
       <div id="donorsGrid" class="grid" aria-live="polite"></div>
-      <div id="noData" class="muted" style="display:none;">
-        <p></p>
-        <p></p>
-        <button id="refreshDataBtn" class="btn primary" style="display: none;">রিফ্রেশ করুন</button>
+      <div id="noData" class="muted" style="display:none;margin-top:20px"></div>
+      
+      <div id="donorsLoginPrompt" style="display:none; text-align:center; padding: 20px;">
+          <p style="font-size: 16px; color: var(--muted);">ডোনার ডেটা দেখতে দয়া করে লগইন করুন।</p>
+          <button class="btn primary" onclick="openAuthModal('login')">লগইন করুন</button>
+      </div>
+      <div id="donorsRefreshPrompt" style="display:none; text-align:center; padding: 20px;">
+          <button class="btn primary" onclick="refreshDonors()">রিফ্রেশ করুন</button>
       </div>
     </section>
     <section id="searchPage" class="page" aria-label="Search">
@@ -708,6 +683,32 @@
       </div>
       <div id="emergencyGrid" class="grid" aria-live="polite"></div>
       <div id="noEmergencyPosts" class="muted" style="display:none;margin-top:20px">কোনো ইমার্জেন্সি পোস্ট নেই।</div>
+      
+      <div class="contact-card">
+          <div class="contact-header">
+              <h4></h4>
+          </div>
+          <div class="contact-grid">
+              <a href="https://www.facebook.com/ziusid" target="_blank" class="contact-item">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                  <span>Follow Page</span>
+              </a>
+              <a href="https://www.facebook.com/groups/fenipolytechnicbondhumohol" target="_blank" class="contact-item">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                  <span>Join Group</span>
+              </a>
+          
+              </a>
+              <a href="mailto:your-ziu.info@gmail.com" class="contact-item">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                  <span>E-mail-Us</span>
+              </a>
+              <a href="https://wa.me/8801400491519" target="_blank" class="contact-item">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-phone"><path d="M22 16.92v3a2 2 0 0 1-2.18 2h-2.82a2 2 0 0 1-1.74-1.23L10.43 15a1 1 0 0 1 .4-1.42l3.41-2.28a1 1 0 0 1 1.41.4l.26.42a1 1 0 0 0 1.25.29l1.62-.97a2 2 0 0 1 2.38.35L22 16.92zM12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"></path></svg>
+                  <span>Contact-Us</span>
+              </a>
+          </div>
+      </div>
     </section>
   </main>
   <footer class="app-footer" role="navigation" aria-label="Footer">
@@ -755,7 +756,6 @@
         </div>
     </div>
 </div>
-
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -811,7 +811,6 @@ const userBadge = document.getElementById('userBadge');
 const logoutReasonModal = document.getElementById('logoutReasonModal');
 const logoutReasonInput = document.getElementById('logoutReasonInput');
 const logoutReasonSubmit = document.getElementById('logoutReasonSubmit');
-const refreshDataBtn = document.getElementById('refreshDataBtn');
 let donors = {};
 let users = {};
 let allEmergencyPosts = {};
@@ -829,10 +828,9 @@ const clearDateBtn = document.getElementById('clearDateBtn');
 let activeDateInput = null;
 let currentCalendarDate = new Date();
 
-// Offline Page elements
-const offlinePage = document.getElementById('offlinePage');
-const offlineTitle = document.getElementById('offlineTitle');
-const offlineMessage = document.getElementById('offlineMessage');
+// এই লাইন দুটি নতুন করে যুক্ত করা হয়েছে
+const donorsLoginPrompt = document.getElementById('donorsLoginPrompt');
+const donorsRefreshPrompt = document.getElementById('donorsRefreshPrompt');
 
 function fmtDate(d){ const dt = new Date(d); if(isNaN(dt)) return "-"; return dt.toLocaleDateString(); }
 function daysBetween(a,b){ return Math.ceil((b - a)/(1000*60*60*24)); }
@@ -846,7 +844,7 @@ function escapeHtml(unsafe) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
-function formatInputDate(iso){ if(!iso) return ''; const d=new Date(iso); const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
+function formatInputDate(iso){ if(!iso) return ''; const d = new Date(iso); const y = d.getFullYear(); const m = String(d.getMonth()+1).padStart(2,'0'); const day = String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
 function renderStars(rating){
   let stars = '';
   for(let i=1; i<=5; i++){
@@ -919,21 +917,6 @@ setTimeout(()=> {
   setTimeout(()=> { loadingScreen.style.display='none'; app.style.display='block'; app.setAttribute('aria-hidden','false'); }, 220);
 }, 2300);
 
-// Offline logic
-function showOfflinePage(title, message) {
-    app.style.display = 'none';
-    loadingScreen.style.display = 'none';
-    offlinePage.style.display = 'flex';
-    offlineTitle.textContent = title;
-    offlineMessage.textContent = message;
-}
-window.addEventListener('offline', () => {
-    showOfflinePage('আপনি অফলাইনে আছেন', 'অনুগ্রহ করে আপনার ইন্টারনেট সংযোগ পরীক্ষা করুন।');
-});
-window.addEventListener('online', () => {
-    window.location.reload();
-});
-
 firebase.auth().onAuthStateChanged(user => {
   if (user) {
     currentUser = { uid: user.uid, email: user.email, displayName: user.displayName || user.email };
@@ -941,6 +924,26 @@ firebase.auth().onAuthStateChanged(user => {
     userBadge.textContent = currentUser.displayName || currentUser.email;
     logoutBtn.style.display = 'flex';
     profileIconContainer.innerHTML = `<div style="width:20px;height:20px;border-radius:50%;background:var(--accent);color:var(--white);font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:700;">${uidInitials(currentUser.displayName)}</div>`;
+
+    const userRef = firebase.database().ref(`users/${currentUser.uid}`);
+    userRef.once('value').then(snapshot => {
+      const userData = snapshot.val();
+      const loginCount = userData?.loginCount || 0;
+      const appRated = userData?.appRated || false;
+      const showRatingAfter = userData?.showRatingAfter || 0;
+      const now = Date.now();
+
+      if (!appRated && (loginCount >= 3 || now > showRatingAfter)) {
+        openAppRatingModal();
+        userRef.update({ 
+          loginCount: loginCount + 1,
+          showRatingAfter: now + 7 * 24 * 60 * 60 * 1000 // ৭ দিন পর
+        });
+      } else if (!appRated && loginCount < 3) {
+        userRef.update({ loginCount: loginCount + 1 });
+      }
+    });
+
   } else {
     currentUser = null;
     userBadge.style.display = 'none';
@@ -949,63 +952,14 @@ firebase.auth().onAuthStateChanged(user => {
   }
   renderAll();
 });
-
-function loadDonorsAndUsers() {
-    donorsGrid.innerHTML = '';
-    noData.style.display = 'none';
-    refreshDataBtn.style.display = 'none';
-
-    donorsRef.once('value').then(snapshot => {
-        donors = snapshot.val() || {};
-        if (Object.keys(donors).length === 0) {
-            noData.style.display = 'flex';
-            noData.querySelector('p:first-of-type').textContent = 'বর্তমানে কোনো ডোনার নেই।';
-            noData.querySelector('p:last-of-type').textContent = 'নতুন ডোনার যোগ করতে "Add" ট্যাবে যান।';
-            refreshDataBtn.style.display = 'none';
-        } else {
-            noData.style.display = 'none';
-        }
-        renderAll();
-    }).catch(error => {
-        console.error("Firebase data fetch failed:", error);
-        donors = {};
-        noData.style.display = 'flex';
-        noData.querySelector('p:first-of-type').textContent = 'আপনি এখনও Authentication করেননি ';
-        noData.querySelector('p:last-of-type').textContent = 'দয়া করে পূর্বের একাউন্টে লগইন করুন অথবা নতুন একাউন্ট তৈরি করুন';
-        refreshDataBtn.style.display = 'block';
-        renderAll();
-    });
-
-    usersRef.once('value').then(snapshot => {
-        users = snapshot.val() || {};
-        renderAll();
-    });
-}
-loadDonorsAndUsers();
-
-emergencyRef.on('value', snapshot => {
-  const postsData = snapshot.val() || {};
-  allEmergencyPosts = {};
-  let hasActivePosts = false;
-  
-  for(const id in postsData) {
-      if(postsData[id].expiresAt > Date.now()) {
-          allEmergencyPosts[id] = postsData[id];
-          hasActivePosts = true;
-      } else {
-          emergencyRef.child(id).remove();
-      }
-  }
-  if (hasActivePosts) {
-      navEmergency.classList.add('has-emergency');
-      emergencyIcon.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" class="feather feather-alert-triangle"><path d="M10.29 3.86L1.86 19.34C1.3 20.29 2 21.5 3.09 21.5h17.82c1.09 0 1.79-1.21 1.23-2.16L13.71 3.86c-.45-.78-1.57-.78-2.02 0zM12 9v4M12 17h.01"></path></svg>`;
-  } else {
-      navEmergency.classList.remove('has-emergency');
-      emergencyIcon.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" class="feather feather-alert-triangle"><path d="M10.29 3.86L1.86 19.34C1.3 20.29 2 21.5 3.09 21.5h17.82c1.09 0 1.79-1.21 1.23-2.16L13.71 3.86c-.45-.78-1.57-.78-2.02 0zM12 9v4M12 17h.01"></path></svg>`;
-  }
+donorsRef.on('value', snapshot => {
+  donors = snapshot.val() || {};
   renderAll();
 });
-
+usersRef.on('value', snapshot => {
+  users = snapshot.val() || {};
+  renderAll();
+});
 async function addEmergencyPost(post) {
   if (!currentUser) return alert('এই ফিচারটি ব্যবহার করার জন্য লগইন করুন।');
   const postId = 'em_' + Date.now();
@@ -1040,6 +994,29 @@ async function deleteEmergencyPost(postId) {
   await emergencyRef.child(postId).remove();
   alert('ইমার্জেন্সি পোস্ট সফলভাবে মুছে ফেলা হয়েছে।');
 }
+emergencyRef.on('value', snapshot => {
+  const postsData = snapshot.val() || {};
+  allEmergencyPosts = {};
+  let hasActivePosts = false;
+  
+  for(const id in postsData) {
+      if(postsData[id].expiresAt > Date.now()) {
+          allEmergencyPosts[id] = postsData[id];
+          hasActivePosts = true;
+      } else {
+          emergencyRef.child(id).remove();
+      }
+  }
+  if (hasActivePosts) {
+      navEmergency.classList.add('has-emergency');
+      emergencyIcon.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" class="feather feather-alert-triangle"><path d="M10.29 3.86L1.86 19.34C1.3 20.29 2 21.5 3.09 21.5h17.82c1.09 0 1.79-1.21 1.23-2.16L13.71 3.86c-.45-.78-1.57-.78-2.02 0zM12 9v4M12 17h.01"></path></svg>`;
+  } else {
+      navEmergency.classList.remove('has-emergency');
+      emergencyIcon.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" class="feather feather-alert-triangle"><path d="M10.29 3.86L1.86 19.34C1.3 20.29 2 21.5 3.09 21.5h17.82c1.09 0 1.79-1.21 1.23-2.16L13.71 3.86c-.45-.78-1.57-.78-2.02 0zM12 9v4M12 17h.01"></path></svg>`;
+  }
+  renderAll();
+});
+
 function openEmergencyPostModal(postId = null) {
   if (!currentUser) {
     openAuthModal('login');
@@ -1279,33 +1256,46 @@ function renderAll(){
 }
 function renderDonorsGrid(){
     donorsGrid.innerHTML = '';
-    const latestEmergencyPost = Object.values(allEmergencyPosts).sort((a,b)=>b.timestamp - a.timestamp)[0];
-    if (latestEmergencyPost) {
-        const postEl = document.createElement('div');
-        postEl.className = 'emergency-card';
-        postEl.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <h3 style="margin: 0; color: white;">🚨 জরুরি রক্তের প্রয়োজন!</h3>
-                <div class="blood-group-large">${latestEmergencyPost.blood}</div>
-            </div>
-            <p style="margin: 0; font-size: 16px;">
-                <span style="font-weight: 600;">রোগী:</span> ${escapeHtml(latestEmergencyPost.patientName)}<br>
-                <span style="font-weight: 600;">বিস্তারিত:</span> ${escapeHtml(latestEmergencyPost.details)}
-            </p>
-            <div style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
-                <a href="tel:${encodeURIComponent(latestEmergencyPost.phone)}" class="btn ghost" style="color: white; border-color: rgba(255,255,255,0.4);">যোগাযোগ করুন</a>
-                <div style="font-size: 12px; opacity: 0.7;">পোস্ট করেছেন: ${users[latestEmergencyPost.user] ? users[latestEmergencyPost.user].name : 'Unknown User'}</div>
-            </div>
-        `;
-        donorsGrid.appendChild(postEl);
-    }
-    const arr = Object.values(donors || {}).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-    if (arr.length === 0 && !latestEmergencyPost) {
-        noData.style.display = 'flex';
-    } else {
+    
+    // Check user login and data existence
+    if (!currentUser) {
+        donorsLoginPrompt.style.display = 'block';
+        donorsRefreshPrompt.style.display = 'none';
         noData.style.display = 'none';
+    } else {
+        donorsLoginPrompt.style.display = 'none';
+        const arr = Object.values(donors || {}).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        if (arr.length === 0) {
+            donorsRefreshPrompt.style.display = 'block';
+            noData.textContent = "কোনো ডোনার ডেটা পাওয়া যায়নি।";
+            noData.style.display = 'block';
+        } else {
+            donorsRefreshPrompt.style.display = 'none';
+            noData.style.display = 'none';
+            // Render the data
+            const latestEmergencyPost = Object.values(allEmergencyPosts).sort((a,b)=>b.timestamp - a.a.timestamp)[0];
+            if (latestEmergencyPost) {
+                const postEl = document.createElement('div');
+                postEl.className = 'emergency-card';
+                postEl.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <h3 style="margin: 0; color: white;">🚨 জরুরি রক্তের প্রয়োজন!</h3>
+                        <div class="blood-group-large">${latestEmergencyPost.blood}</div>
+                    </div>
+                    <p style="margin: 0; font-size: 16px;">
+                        <span style="font-weight: 600;">রোগী:</span> ${escapeHtml(latestEmergencyPost.patientName)}<br>
+                        <span style="font-weight: 600;">বিস্তারিত:</span> ${escapeHtml(latestEmergencyPost.details)}
+                    </p>
+                    <div style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+                        <a href="tel:${encodeURIComponent(latestEmergencyPost.phone)}" class="btn ghost" style="color: white; border-color: rgba(255,255,255,0.4);">যোগাযোগ করুন</a>
+                        <div style="font-size: 12px; opacity: 0.7;">পোস্ট করেছেন: ${users[latestEmergencyPost.user] ? users[latestEmergencyPost.user].name : 'Unknown User'}</div>
+                    </div>
+                `;
+                donorsGrid.appendChild(postEl);
+            }
+            arr.forEach(d => donorsGrid.appendChild(renderCard(d)));
+        }
     }
-    arr.forEach(d => donorsGrid.appendChild(renderCard(d)));
 }
 function renderSearchGrid(){
   searchGrid.innerHTML = '';
@@ -1863,9 +1853,6 @@ if(searchInput){
     clearSearch.classList.remove('visible');
   });
 }
-refreshDataBtn.addEventListener('click', () => {
-    loadDonorsAndUsers();
-});
 setInterval(()=> { renderDonorsGrid(); renderSearchGrid(); renderMyDonors(); renderEmergencyPosts(); }, 60*1000);
 window.openAuthModal = openAuthModal;
 window.openEditDonor = openEditDonor;
@@ -1883,6 +1870,124 @@ function scrollToTop() {
     });
 }
 window.scrollToTop = scrollToTop;
+
+// New functions for refresh button
+function refreshDonors() {
+    Toast.makeText(this, "ডেটা রিফ্রেশ করা হচ্ছে...", Toast.LENGTH_SHORT).show();
+    loadAndRenderDonors();
+}
+window.refreshDonors = refreshDonors;
+
+function loadAndRenderDonors() {
+    donorsGrid.innerHTML = '';
+    
+    if (!currentUser) {
+        donorsLoginPrompt.style.display = 'block';
+        donorsRefreshPrompt.style.display = 'none';
+        noData.style.display = 'none';
+        return;
+    } else {
+        donorsLoginPrompt.style.display = 'none';
+        noData.style.display = 'block';
+        noData.textContent = "ডোনার লোড হচ্ছে...";
+    }
+
+    // Unsubscribe from the old listener to avoid double loading
+    donorsRef.off();
+
+    // Re-subscribe and fetch the data once
+    donorsRef.once('value').then(snapshot => {
+        donors = snapshot.val() || {};
+        const latestEmergencyPost = Object.values(allEmergencyPosts).sort((a,b)=>b.timestamp - a.timestamp)[0];
+        
+        // This is to prevent data from being rendered before fetching is complete
+        donorsGrid.innerHTML = '';
+        const arr = Object.values(donors || {}).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        
+        if (latestEmergencyPost) {
+            const postEl = document.createElement('div');
+            postEl.className = 'emergency-card';
+            postEl.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <h3 style="margin: 0; color: white;">🚨 জরুরি রক্তের প্রয়োজন!</h3>
+                    <div class="blood-group-large">${latestEmergencyPost.blood}</div>
+                </div>
+                <p style="margin: 0; font-size: 16px;">
+                    <span style="font-weight: 600;">রোগী:</span> ${escapeHtml(latestEmergencyPost.patientName)}<br>
+                    <span style="font-weight: 600;">বিস্তারিত:</span> ${escapeHtml(latestEmergencyPost.details)}
+                </p>
+                <div style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+                        <a href="tel:${encodeURIComponent(latestEmergencyPost.phone)}" class="btn ghost" style="color: white; border-color: rgba(255,255,255,0.4);">যোগাযোগ করুন</a>
+                        <div style="font-size: 12px; opacity: 0.7;">পোস্ট করেছেন: ${users[latestEmergencyPost.user] ? users[latestEmergencyPost.user].name : 'Unknown User'}</div>
+                    </div>
+            `;
+            donorsGrid.appendChild(postEl);
+        }
+
+        if (arr.length === 0) {
+            if (currentUser) {
+                donorsRefreshPrompt.style.display = 'block';
+                noData.textContent = "কোনো ডোনার ডেটা পাওয়া যায়নি।";
+            }
+            noData.style.display = 'block';
+        } else {
+            noData.style.display = 'none';
+            donorsRefreshPrompt.style.display = 'none';
+            arr.forEach(d => donorsGrid.appendChild(renderCard(d)));
+        }
+    }).catch(error => {
+        console.error("Error fetching donors: ", error);
+        noData.textContent = "ডেটা লোড করতে সমস্যা হয়েছে।";
+        noData.style.display = 'block';
+        donorsRefreshPrompt.style.display = 'block';
+    });
+
+    // Re-add the listener for real-time updates
+    donorsRef.on('value', snapshot => {
+        donors = snapshot.val() || {};
+        renderAll();
+    });
+}
+
+// Initial load on page start
+window.addEventListener('load', loadAndRenderDonors);
+// Update the firebase.auth().onAuthStateChanged listener to call the new function
+firebase.auth().onAuthStateChanged(user => {
+    // ... existing auth state change logic ...
+    if (user) {
+        currentUser = { uid: user.uid, email: user.email, displayName: user.displayName || user.email };
+        userBadge.style.display = 'inline-block';
+        userBadge.textContent = currentUser.displayName || currentUser.email;
+        logoutBtn.style.display = 'flex';
+        profileIconContainer.innerHTML = `<div style="width:20px;height:20px;border-radius:50%;background:var(--accent);color:var(--white);font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:700;">${uidInitials(currentUser.displayName)}</div>`;
+
+        const userRef = firebase.database().ref(`users/${currentUser.uid}`);
+        userRef.once('value').then(snapshot => {
+            const userData = snapshot.val();
+            const loginCount = userData?.loginCount || 0;
+            const appRated = userData?.appRated || false;
+            const showRatingAfter = userData?.showRatingAfter || 0;
+            const now = Date.now();
+
+            if (!appRated && (loginCount >= 3 || now > showRatingAfter)) {
+                openAppRatingModal();
+                userRef.update({ 
+                    loginCount: loginCount + 1,
+                    showRatingAfter: now + 7 * 24 * 60 * 60 * 1000
+                });
+            } else if (!appRated && loginCount < 3) {
+                userRef.update({ loginCount: loginCount + 1 });
+            }
+        });
+    } else {
+        currentUser = null;
+        userBadge.style.display = 'none';
+        logoutBtn.style.display = 'none';
+        profileIconContainer.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path></svg>`;
+    }
+    loadAndRenderDonors();
+});
+
 const logoutReasonModalElement = document.getElementById("logoutReasonModal");
 const logoutReasonInputElement = document.getElementById("logoutReasonInput");
 const logoutReasonSubmitButton = document.getElementById("logoutReasonSubmit");
@@ -1903,4 +2008,4 @@ if(logoutReasonSubmitButton) {
 }
 </script>
 </body>
-  </html>
+</html>
